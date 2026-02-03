@@ -1,0 +1,126 @@
+#include <math.h>
+#include <string.h>
+#include <AltSoftSerial.h>
+//rf--> RX = 8 / TX = 9 (nano)
+AltSoftSerial hc12;
+// Joystick Left Pin
+int left_xPin = A2;
+int left_yPin = A3;
+//int left_buttonpin = 2; (inactive button)
+
+// Joystick Right Pin
+int right_xPin = A0;
+int right_yPin = A1;
+int right_buttonpin = 6;
+
+// right joystick button position
+int right_xPosition;
+int right_yPosition;
+
+// left joystick button position
+int left_xPosition;
+int left_yPosition;
+
+//mod 
+int mod = 0;
+// button debounce
+unsigned long lastbuttontime = 0;
+const unsigned long debounceTime = 200;
+//data timer
+unsigned long lastSendingTime = 0;
+const unsigned long sending_interval = 200; 
+
+// message arrays
+char total_message[20];
+char right_message[5];
+char left_message[5];
+
+void setup() {
+  Serial.begin(9600);
+  hc12.begin(9600);
+  //left pin
+  pinMode(left_xPin, INPUT);
+  pinMode(left_yPin, INPUT);
+  //right pin
+  pinMode(right_xPin, INPUT);
+  pinMode(right_yPin, INPUT);
+  pinMode(right_buttonpin, INPUT_PULLUP);
+  strcpy(total_message, "M00.0000.00CF");
+
+
+}
+
+void loop() {
+  int button_state = digitalRead(right_buttonpin);
+  if (button_state == LOW && (millis() - lastbuttontime > debounceTime)) {
+    // Modu Değiştir (Toggle)
+    if ( total_message[0] == 'M') {
+      total_message[0] = 'E'; // E-Stop mode
+    } else {
+      total_message[0] = 'M'; // Manuel mode
+    }
+
+    lastbuttontime = millis();
+    // Debug için ekrana yaz
+    Serial.print("Mod Degisti: ");
+    Serial.println(total_message[0]);
+  }
+  if (millis() - lastSendingTime > sending_interval) {
+    //right joystick (0-1023) analog 
+    int right_analog_x = analogRead(right_xPin); 
+    int right_analog_y = analogRead(right_yPin);
+    //left joystick (0-1023) analog 
+    int left_analog_x = analogRead(left_xPin);
+    int left_analog_y = analogRead(left_yPin);
+    // variables for calculations
+    int right_dir = 0;
+    int right_velocity = 0;
+    int left_dir = 0;
+    int left_velocity = 0;
+
+    // right
+    if(right_analog_x > 540){
+      right_dir = 1; 
+      right_velocity = map(right_analog_x, 540, 1023, 0, 99);  //right analog x dediğimiz aslında y ekseni lehimlerken ters takınca yön değişti
+      }
+    else if(right_analog_x < 480){
+      right_dir = 0;
+      right_velocity = map(right_analog_x, 480, 0, 0, 99);  //right analog x dediğimiz aslında y ekseni lehimlerken ters takınca yön değişti
+    }
+    else{
+      right_dir = 0;
+      right_velocity = 0;
+    }
+
+    // left
+    if(left_analog_x > 540){
+      left_dir = 1; 
+      left_velocity = map(left_analog_x, 540, 1023, 0, 99);  //left analog x dediğimiz aslında y ekseni lehimlerken ters takınca yön değişti
+      }
+    else if(left_analog_x < 480){
+      left_dir = 0;
+      left_velocity = map(left_analog_x, 480, 0, 0, 99);  //left analog x dediğimiz aslında y ekseni lehimlerken ters takınca yön değişti
+    }
+    else{
+      left_dir = 0;
+      left_velocity = 0;
+    }
+
+    // integer --> text
+    sprintf(total_message, "%c%d0.%02d%d0.%02dCF", 
+            total_message[0],      // Mod
+            right_dir,             // right direction
+            right_velocity,        // right velocity
+            left_dir,              // left direction
+            left_velocity          // left velocity
+            );
+
+    // send the data
+    hc12.println(total_message);  
+    //hc12.println("hello");  
+    Serial.println(total_message); 
+    lastSendingTime = millis(); 
+
+  }
+
+}
