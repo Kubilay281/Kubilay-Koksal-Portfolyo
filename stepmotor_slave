@@ -105,14 +105,14 @@ int main(void)
     /* Infinite loop */
 while (1)
 {
-  // Komut 1: Ileri Dönüs
+  // Komut 1: Ileri DÃ¶nÃ¼s
   if (motor_komut == 1) 
   {
     HAL_GPIO_WritePin(GPIOA, DIR_Pin, GPIO_PIN_SET);
     HAL_Delay(20); 
     
-    // Kosul: motor_komut 1 oldugu sürece dön. 
-    // UART interrupt'i geldiginde bu deger degisirse döngüden çikar.
+    // Kosul: motor_komut 1 oldugu sÃ¼rece dÃ¶n. 
+    // UART interrupt'i geldiginde bu deger degisirse dÃ¶ngÃ¼den Ã§ikar.
     while(motor_komut == 1)  
     {
       HAL_GPIO_WritePin(GPIOA, PUL_Pin, GPIO_PIN_SET);
@@ -122,13 +122,13 @@ while (1)
     }
   }
   
-  // Komut 2: Geri Dönüs
+  // Komut 2: Geri DÃ¶nÃ¼s
   else if (motor_komut == 2) 
   {
     HAL_GPIO_WritePin(GPIOA, DIR_Pin, GPIO_PIN_RESET); 
     HAL_Delay(20);
     
-    // Kosul: motor_komut 2 oldugu sürece dön.
+    // Kosul: motor_komut 2 oldugu sÃ¼rece dÃ¶n.
     while(motor_komut == 2) 
     {
       HAL_GPIO_WritePin(GPIOA, PUL_Pin, GPIO_PIN_SET);
@@ -255,7 +255,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
     else if(rx_data == '2' || rx_data == 2) motor_komut = 2;
     else if(rx_data == '0' || rx_data == 0) motor_komut = 0;
 
-    // Kesmeyi tekrar aktif et (Bir sonraki veri için)
+    // Kesmeyi tekrar aktif et (Bir sonraki veri iÃ§in)
     HAL_UART_Receive_IT(&huart1, &rx_data, 1);
   }
   }
