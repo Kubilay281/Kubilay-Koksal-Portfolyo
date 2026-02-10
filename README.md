@@ -1,2 +1,2 @@
-# Kubilay-Koksal---Elif-Nur-Ketenci-Portfolyo
-Bu portfolyo Kubilay Köksal ve Elif Nur Ketenci'nin beraber üzerine çalıştıkları projelerden oluşmaktadır.
+# Kubilay-Koksal--Portfolyo
+Bu portfolyo Kubilay Köksal'ın üzerine çalıştığı  projelerden oluşmaktadır.
